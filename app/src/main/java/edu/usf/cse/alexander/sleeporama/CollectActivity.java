@@ -4,6 +4,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.Toast;
 
 public class CollectActivity extends AppCompatActivity {
 
@@ -11,7 +14,17 @@ public class CollectActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_collect);
+
+
     }
+
+    public void sendMessage(View view) {
+        // Do something in response to button
+        finish();
+
+    }
+
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
