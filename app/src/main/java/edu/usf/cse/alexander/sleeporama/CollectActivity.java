@@ -37,9 +37,15 @@ public class CollectActivity extends AppCompatActivity implements SensorEventLis
             }
         });
     }
+    //This should send it back to the previous activity
+    public void sendMessage(View view) {
+        // Do something in response to button
+        finish();
+
+    }
 
     @Override
-    protected void onResume(){
+    protected void onResume() {
         super.onResume();
         sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_GAME);
     }
