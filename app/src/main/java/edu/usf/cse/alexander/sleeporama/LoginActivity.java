@@ -1,16 +1,48 @@
 package edu.usf.cse.alexander.sleeporama;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 
 public class LoginActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_login);
+
+        Button login = (Button) this.findViewById(R.id.Login);
+        if (login != null)
+        {
+            Log.d("test", "login != null");
+        }
+        else
+        {
+            Log.d("test", "login = null");
+        }
+
+        login.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                login(view);
+            }
+        });
+    }
+
+    public void login(View view) {
+        Intent intent = new Intent(this, MainActivity.class);
+        Bundle bundle = new Bundle();
+        EditText editText = (EditText) findViewById(R.id.username);
+        String username = editText.getText().toString();
+        bundle.putString("EXTRA_MESSAGE", username);
+        intent.putExtras(bundle);
+        startActivity(intent);
     }
 
     @Override

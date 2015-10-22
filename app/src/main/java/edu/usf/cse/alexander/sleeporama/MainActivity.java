@@ -7,6 +7,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
 import java.util.Calendar;
 
@@ -20,6 +21,12 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         dbm = new SleepDBManager(this);
+
+        String username;
+        Bundle b = getIntent().getExtras();
+        username = b.getString("EXTRA_MESSAGE");
+        TextView t = (TextView) findViewById(R.id.welcome);
+        t.setText("Welcome, " + username);
 
         Button startSleep = (Button) findViewById(R.id.startSleep);
         startSleep.setOnClickListener(new View.OnClickListener() {
