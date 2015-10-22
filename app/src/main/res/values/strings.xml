@@ -9,6 +9,7 @@
     <string name="next">NEXT</string>
     <string name="date">Date: xxxxxx</string>
     <string name="welcome">Welcome, xxxxxx</string>
+    <string name="login">LOGIN</string>
     <string name="logout">LOGOUT</string>
     <string name="startSleeping">START SLEEPING</string>
 </resources>
