@@ -3,7 +3,7 @@
 
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
-    <string name="title_activity_collect">CollectActivity</string>
+    <string name="title_activity_collect">SleepORama</string>
     <string name="prev">PREV</string>
     <string name="next">NEXT</string>
     <string name="date">Date: xxxxxx</string>
