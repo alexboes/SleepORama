@@ -12,6 +12,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 
+import java.sql.SQLException;
+
 import edu.usf.cse.android.db.SleepDBManager;
 
 public class CollectActivity extends AppCompatActivity implements SensorEventListener {
@@ -28,8 +30,13 @@ public class CollectActivity extends AppCompatActivity implements SensorEventLis
 
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         dbm = new SleepDBManager(this);
+        try {
+            dbm.open();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
 
-        Button endSleep = new Button(this);
+        Button endSleep = (Button) this.findViewById(R.id.doneButton);
         endSleep.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
