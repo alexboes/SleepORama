@@ -18,15 +18,6 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
 
         Button login = (Button) this.findViewById(R.id.Login);
-        if (login != null)
-        {
-            Log.d("test", "login != null");
-        }
-        else
-        {
-            Log.d("test", "login = null");
-        }
-
         login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
