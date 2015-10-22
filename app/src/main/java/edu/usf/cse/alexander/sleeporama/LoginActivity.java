@@ -3,12 +3,10 @@ package edu.usf.cse.alexander.sleeporama;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -17,23 +15,13 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        Button login = (Button) this.findViewById(R.id.Login);
+        Button login = (Button) this.findViewById(R.id.login);
         login.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                login(view);
+            public void onClick(View v) {
+                sendUsername();
             }
         });
-    }
-
-    public void login(View view) {
-        Intent intent = new Intent(this, MainActivity.class);
-        Bundle bundle = new Bundle();
-        EditText editText = (EditText) findViewById(R.id.username);
-        String username = editText.getText().toString();
-        bundle.putString("EXTRA_MESSAGE", username);
-        intent.putExtras(bundle);
-        startActivity(intent);
     }
 
     @Override
@@ -56,6 +44,12 @@ public class LoginActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void sendUsername()
+    {
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
     }
 }
 
