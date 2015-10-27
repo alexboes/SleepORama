@@ -10,12 +10,25 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import java.sql.SQLException;
+
+import edu.usf.cse.android.db.SleepDBManager;
+
 public class LoginActivity extends AppCompatActivity {
+
+    private SleepDBManager dbm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        dbm = new SleepDBManager(this);
+        try {
+            dbm.open();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
 
         Button login = (Button) this.findViewById(R.id.Login);
         login.setOnClickListener(new View.OnClickListener() {
