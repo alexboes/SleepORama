@@ -44,6 +44,7 @@ public class CollectActivity extends AppCompatActivity implements SensorEventLis
             }
         });
     }
+
     //This should send it back to the previous activity
     public void sendMessage(View view) {
         // Do something in response to button
