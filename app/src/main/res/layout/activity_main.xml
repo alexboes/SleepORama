@@ -26,6 +26,7 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/charts"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:orientation="vertical"
@@ -33,7 +34,7 @@
         <TextView
             android:id="@+id/date"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:text="@string/date"
             android:textSize="30sp"/>
         <LinearLayout
@@ -53,11 +54,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
         <Button
+            android:id="@+id/prev"
             android:layout_width="100sp"
             android:layout_height="wrap_content"
             android:text="@string/prev"
             android:textSize="18sp" />
         <Button
+            android:id="@+id/next"
             android:layout_width="100sp"
             android:layout_height="wrap_content"
             android:text="@string/next"
