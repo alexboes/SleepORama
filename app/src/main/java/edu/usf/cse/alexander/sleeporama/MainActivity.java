@@ -22,6 +22,7 @@ package edu.usf.cse.alexander.sleeporama;
 
         import java.sql.SQLException;
         import java.util.Calendar;
+        import java.util.TimeZone;
 
         import edu.usf.cse.android.db.SleepDBManager;
 
@@ -46,21 +47,18 @@ public class MainActivity extends AppCompatActivity {
         }
         sessionID = getMaximumSessionID();
 
-            String username = "";
-            Bundle b = getIntent().getExtras();
-            if (b != null) {
-                username = b.getString("EXTRA_MESSAGE");
-            }
-            TextView t = (TextView) findViewById(R.id.welcome);
-            t.setText("Welcome, " + username);
+        String username = dbm.getUsername();
+        TextView welc = (TextView) findViewById(R.id.welcome);
+        welc.setText("Welcome, " + username);
 
+        ((TextView) findViewById(R.id.date)).setText("Date: " + dbm.getDate(sessionID));
 
         Button startSleep = (Button) this.findViewById(R.id.startSleep);
         startSleep.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Calendar c = Calendar.getInstance();
-                sendSessionID(dbm.createSession(c.toString()));
+                Calendar c = Calendar.getInstance(TimeZone.getTimeZone("America/New_York"));
+                sendSessionID(dbm.createSession(c.getTime().toGMTString()));
             }
         });
 
@@ -79,6 +77,7 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("Personal", "Check1");
                 if(sessionID > 1) {
                     sessionID--;
+                    ((TextView) findViewById(R.id.date)).setText("Date: " + dbm.getDate(sessionID));
                     setChart1toSessionValues();
                 }
             }
@@ -90,6 +89,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if(sessionID < getMaximumSessionID()) {
                     sessionID++;
+                    ((TextView) findViewById(R.id.date)).setText("Date: " + dbm.getDate(sessionID));
                     setChart1toSessionValues();
                 }
             }
@@ -102,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
         LinearLayout charts = (LinearLayout) this.findViewById(R.id.charts);
         if(mChart1 == null){
             initChart();
-            mChart1 = ChartFactory.getCubeLineChartView(this, mDataset1, mRenderer1, 0.3f);
+            mChart1 = ChartFactory.getCubeLineChartView(this, mDataset1, mRenderer1, 0);
             setChart1toSessionValues();
             charts.addView(mChart1);
         } else {
@@ -150,6 +150,8 @@ public class MainActivity extends AppCompatActivity {
         mDataset1.addSeries(mCurrentSeries1);
         mCurrentRenderer1 = new XYSeriesRenderer();
         mRenderer1.addSeriesRenderer(mCurrentRenderer1);
+        mRenderer1.setPanEnabled(false, false);
+        mRenderer1.setZoomEnabled(false, false);
     }
 
     private void setChart1toSessionValues(){
@@ -161,6 +163,7 @@ public class MainActivity extends AppCompatActivity {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        Log.d("Personal", "" + sessionID + " Count: " + mCursor.getCount());
         if(mCursor != null){
             while(!(mCursor.isAfterLast())) {
                 mCurrentSeries1.add(count, mCursor.getDouble(2));

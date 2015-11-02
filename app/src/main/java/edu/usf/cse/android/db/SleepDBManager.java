@@ -58,9 +58,11 @@ public class SleepDBManager {
         return db.insert("sessions", null, initialValues);
     }
 
-    public long createDatapoint(Long session_id, double datapoint){
+    public void createDatapoint(Long session_id, double datapoint){
         ContentValues initialValues = createDatapointsValues(session_id, datapoint);
-        return db.insert("datapoints", null, initialValues);
+        db.insert("datapoints", null, initialValues);
+        Log.d("Personal", "SQL Executed");
+        return;
     }
 
     public boolean updatePreference(long p_id, String information){
@@ -100,5 +102,17 @@ public class SleepDBManager {
 
     public Cursor getAllSessions() {
         return db.query("sessions", new String[]{"_id", "date"}, null, null, null, null, null);
+    }
+
+    public String getUsername() {
+        Cursor temp = db.query(true, "preferences", new String[] {"_id", "information"}, "_id=" + 1, null, null, null, null, null);
+        temp.moveToFirst();
+        return temp.getString(1);
+    }
+
+    public String getDate(long session_id) {
+        Cursor temp = db.query(true, "sessions", new String[] {"_id", "date"}, "_id=" + session_id, null, null, null, null, null);
+        temp.moveToFirst();
+        return temp.getString(1);
     }
 }

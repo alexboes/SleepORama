@@ -34,6 +34,7 @@ public class LoginActivity extends AppCompatActivity {
         login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Log.d("Personal", "Check1");
                 login(view);
             }
         });
@@ -41,11 +42,11 @@ public class LoginActivity extends AppCompatActivity {
 
     public void login(View view) {
         Intent intent = new Intent(this, MainActivity.class);
-        Bundle bundle = new Bundle();
         EditText editText = (EditText) findViewById(R.id.username);
         String username = editText.getText().toString();
-        bundle.putString("EXTRA_MESSAGE", username);
-        intent.putExtras(bundle);
+        Log.d("Personal","Check2");
+        dbm.updatePreference(1, username);
+        Log.d("Personal","Check3");
         startActivity(intent);
     }
 

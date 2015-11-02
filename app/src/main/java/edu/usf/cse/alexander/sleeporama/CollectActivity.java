@@ -7,6 +7,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -20,6 +21,9 @@ public class CollectActivity extends AppCompatActivity implements SensorEventLis
     private SensorManager sensorManager;
     private long sessionID;
     private SleepDBManager dbm;
+    private double[] data = new double[10000];
+    private double average = 0.0;
+    private int minicount = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +44,7 @@ public class CollectActivity extends AppCompatActivity implements SensorEventLis
         endSleep.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Log.d("Personal", "Hello");
                 sendNothing();
             }
         });
@@ -55,7 +60,13 @@ public class CollectActivity extends AppCompatActivity implements SensorEventLis
     @Override
     protected void onResume() {
         super.onResume();
-        sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_GAME);
+        sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_UI);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        sensorManager.unregisterListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER));
     }
 
     @Override
@@ -82,19 +93,19 @@ public class CollectActivity extends AppCompatActivity implements SensorEventLis
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        synchronized (this) {
-            switch(event.sensor.getType()){
-                case Sensor.TYPE_ACCELEROMETER:
-                    float x = event.values[0];
-                    float y = event.values[1];
-                    float z = event.values[2];
-                    double r = Math.sqrt(x*x + y*y + z*z);
-                    dbm.createDatapoint(sessionID,r);
-                    break;
-                default:
-                    break;
+            synchronized(this){
+                float x = event.values[0];
+                float y = event.values[1];
+                float z = event.values[2];
+                double r = Math.sqrt(x*x + y*y + z*z);
+                average += r/100;
+                minicount++;
+                if(minicount == 100){
+                    minicount = 0;
+                    dbm.createDatapoint(sessionID, average);
+                    average = 0.0;
+                }
             }
-        }
     }
 
     @Override
@@ -106,4 +117,5 @@ public class CollectActivity extends AppCompatActivity implements SensorEventLis
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
     }
+
 }
