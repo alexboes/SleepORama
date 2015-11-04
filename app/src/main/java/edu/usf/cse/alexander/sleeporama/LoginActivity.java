@@ -12,6 +12,7 @@ import android.widget.EditText;
 
 import java.sql.SQLException;
 
+import edu.usf.cse.android.db.ExternDBHelper;
 import edu.usf.cse.android.db.SleepDBManager;
 
 public class LoginActivity extends AppCompatActivity {
@@ -22,6 +23,9 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        ExternDBHelper edbh = new ExternDBHelper(this);
+        edbh.checkLogin("Alex", "test");
 
         dbm = new SleepDBManager(this);
         try {

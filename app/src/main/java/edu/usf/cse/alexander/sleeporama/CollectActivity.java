@@ -15,6 +15,7 @@ import android.widget.Button;
 
 import java.sql.SQLException;
 
+import edu.usf.cse.android.db.ExternDBHelper;
 import edu.usf.cse.android.db.SleepDBManager;
 
 public class CollectActivity extends AppCompatActivity implements SensorEventListener {
