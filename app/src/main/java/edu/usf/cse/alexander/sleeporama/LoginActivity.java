@@ -18,18 +18,19 @@ import edu.usf.cse.android.db.SleepDBManager;
 public class LoginActivity extends AppCompatActivity {
 
     private SleepDBManager dbm;
+    private ExternDBHelper edbh;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        ExternDBHelper edbh = new ExternDBHelper(this);
-        edbh.checkLogin("Alex", "test");
+        edbh = new ExternDBHelper(this);
 
         dbm = new SleepDBManager(this);
         try {
             dbm.open();
+            Log.d("Personal", "Check1");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -38,7 +39,6 @@ public class LoginActivity extends AppCompatActivity {
         login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.d("Personal", "Check1");
                 login(view);
             }
         });

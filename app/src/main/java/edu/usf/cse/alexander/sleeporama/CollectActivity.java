@@ -14,6 +14,7 @@ import android.view.View;
 import android.widget.Button;
 
 import java.sql.SQLException;
+import java.util.Calendar;
 
 import edu.usf.cse.android.db.ExternDBHelper;
 import edu.usf.cse.android.db.SleepDBManager;
@@ -25,6 +26,7 @@ public class CollectActivity extends AppCompatActivity implements SensorEventLis
     private double[] data = new double[10000];
     private double average = 0.0;
     private int minicount = 0;
+    private long milliseconds;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +34,8 @@ public class CollectActivity extends AppCompatActivity implements SensorEventLis
         setContentView(R.layout.activity_collect);
         Bundle bundle = getIntent().getExtras();
         sessionID = bundle.getLong("sessionID");
+        Calendar c = Calendar.getInstance();
+        milliseconds = c.getTimeInMillis();
 
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         dbm = new SleepDBManager(this);
@@ -45,7 +49,6 @@ public class CollectActivity extends AppCompatActivity implements SensorEventLis
         endSleep.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d("Personal", "Hello");
                 sendNothing();
             }
         });
@@ -103,7 +106,8 @@ public class CollectActivity extends AppCompatActivity implements SensorEventLis
                 minicount++;
                 if(minicount == 100){
                     minicount = 0;
-                    dbm.createDatapoint(sessionID, average);
+                    long temp = Calendar.getInstance().getTimeInMillis();
+                    dbm.createDatapoint(sessionID, (temp - milliseconds), average);
                     average = 0.0;
                 }
             }

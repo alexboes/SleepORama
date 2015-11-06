@@ -39,6 +39,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        Log.d("Personal", "Main Activity");
+
         dbm = new SleepDBManager(this);
         try {
             dbm.open();
@@ -74,7 +77,6 @@ public class MainActivity extends AppCompatActivity {
         prev.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d("Personal", "Check1");
                 if(sessionID > 1) {
                     sessionID--;
                     ((TextView) findViewById(R.id.date)).setText("Date: " + dbm.getDate(sessionID));
@@ -157,7 +159,6 @@ public class MainActivity extends AppCompatActivity {
     private void setChart1toSessionValues(){
         mCurrentSeries1.clear();
         Cursor mCursor = null;
-        double count = 0;
         try {
             mCursor = dbm.getAllSessionDatapoints(sessionID);
         } catch (SQLException e) {
@@ -166,8 +167,7 @@ public class MainActivity extends AppCompatActivity {
         Log.d("Personal", "" + sessionID + " Count: " + mCursor.getCount());
         if(mCursor != null){
             while(!(mCursor.isAfterLast())) {
-                mCurrentSeries1.add(count, mCursor.getDouble(2));
-                count = count + 1.0;
+                mCurrentSeries1.add(mCursor.getLong(2), mCursor.getDouble(3));
                 mCursor.moveToNext();
             }
         }

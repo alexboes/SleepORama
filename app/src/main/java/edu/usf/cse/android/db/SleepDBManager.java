@@ -41,9 +41,10 @@ public class SleepDBManager {
         return values;
     }
 
-    private ContentValues createDatapointsValues(long session_id, double datapoint){
+    private ContentValues createDatapointValues(long session_id, long milliseconds, double datapoint){
         ContentValues values = new ContentValues();
         values.put("session_id", session_id);
+        values.put("milliseconds", milliseconds);
         values.put("datapoint", datapoint);
         return values;
     }
@@ -58,8 +59,8 @@ public class SleepDBManager {
         return db.insert("sessions", null, initialValues);
     }
 
-    public void createDatapoint(Long session_id, double datapoint){
-        ContentValues initialValues = createDatapointsValues(session_id, datapoint);
+    public void createDatapoint(long session_id, long milliseconds, double datapoint){
+        ContentValues initialValues = createDatapointValues(session_id, milliseconds, datapoint);
         db.insert("datapoints", null, initialValues);
         Log.d("Personal", "SQL Executed");
         return;
@@ -75,8 +76,8 @@ public class SleepDBManager {
         return db.update("sessions", updateValues, "_id=" + session_id, null) > 0;
     }
 
-    public boolean updateDatapoint(long d_id, long session_id, double datapoint){
-        ContentValues updateValues = createDatapointsValues(session_id, datapoint);
+    public boolean updateDatapoint(long d_id, long session_id, long milliseconds, double datapoint){
+        ContentValues updateValues = createDatapointValues(session_id, milliseconds, datapoint);
         return db.update("datapoints", updateValues, "_id=" + d_id, null) > 0;
     }
 
@@ -93,7 +94,7 @@ public class SleepDBManager {
     }
 
     public Cursor getAllSessionDatapoints(long session_id) throws SQLException{
-        Cursor mCursor = db.query(true, "datapoints", new String[] {"_id", "session_id", "datapoint"}, "session_id=" + session_id, null, null, null, null, null);
+        Cursor mCursor = db.query(true, "datapoints", new String[] {"_id", "session_id", "milliseconds", "datapoint"}, "session_id=" + session_id, null, null, null, null, null);
         if(mCursor != null){
             mCursor.moveToFirst();
         }

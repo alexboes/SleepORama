@@ -25,7 +25,6 @@ public class ExternDBHelper {
 
     public String checkLogin(String username, String password){
         returnString = "";
-        Log.d("Personal", "Check1");
         JsonObjectRequest request = new JsonObjectRequest("http://192.236.124.29/SleepORama/checkLogin.php?username=" + username + "&password=" + password, null,
                 new Response.Listener<JSONObject>() {
                     @Override
@@ -37,22 +36,23 @@ public class ExternDBHelper {
                             if(result != null)
                             {
                                 returnString = result.getString("value");
-                                Log.d("Personal", returnString);
                             }
                         }
                         catch(JSONException e){
                             returnString = "JSON Error";
-                            Log.d("Personal", "JSON Error");
                         }
                     }
                 }, new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError volleyError) {
-                        Log.d("Personal", "Connection Error");
+                        returnString = "Connection Error";
                     }
                 }
         );
         Volley.newRequestQueue(context).add(request);
+        while(returnString == ""){
+
+        }
         return returnString;
     }
 }

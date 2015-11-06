@@ -22,6 +22,7 @@ public class SleepDBHelper extends SQLiteOpenHelper {
             "create table datapoints(" +
             "_id integer primary key autoincrement, " +
             "session_id integer not null, " +
+            "milliseconds integer not null, " +
             "datapoint real not null)";
 
     private static final String DB_NAME = "SleepORama";
