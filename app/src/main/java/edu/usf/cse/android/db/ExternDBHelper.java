@@ -16,43 +16,46 @@ import org.json.JSONTokener;
  * Created by Alex on 11/4/2015.
  */
 public class ExternDBHelper {
-    private String returnString = "";
     private Context context;
+    private final static String ipv4 = "192.232.176.248";
 
     public ExternDBHelper(Context c){
         context = c;
     }
 
-    public String checkLogin(String username, String password){
-        returnString = "";
-        JsonObjectRequest request = new JsonObjectRequest("http://192.236.124.29/SleepORama/checkLogin.php?username=" + username + "&password=" + password, null,
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject jsonObject) {
-                        JSONTokener theTokener = new JSONTokener(jsonObject.toString());
-                        JSONObject result;
-                        try{
-                            result = (JSONObject) theTokener.nextValue();
-                            if(result != null)
-                            {
-                                returnString = result.getString("value");
-                            }
-                        }
-                        catch(JSONException e){
-                            returnString = "JSON Error";
-                        }
-                    }
-                }, new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError volleyError) {
-                        returnString = "Connection Error";
-                    }
-                }
-        );
+    public void checkLogin(String username, String password, Response.Listener<JSONObject> responseListener, Response.ErrorListener errorListener){
+        JsonObjectRequest request = new JsonObjectRequest("http://" + ipv4 + "/SleepORama/checkLogin.php?username=" + username + "&password=" + password, null, responseListener, errorListener);
         Volley.newRequestQueue(context).add(request);
-        while(returnString == ""){
+        return;
+    }
 
+    public void createSession(String username, long session_id, String date, Response.Listener<JSONObject> responseListener, Response.ErrorListener errorListener){
+        String d = date.replace(' ', '_');
+        JsonObjectRequest request = new JsonObjectRequest("http://" + ipv4 + "/SleepORama/createSession.php?username=" + username + "&sessionid=" + session_id + "&date=" + d, null, responseListener, errorListener);
+        Volley.newRequestQueue(context).add(request);
+        return;
+    }
+
+    public void createDatapoint(String username, long session_id, long milliseconds, double datapoint, Response.Listener<JSONObject> responseListener, Response.ErrorListener errorListener){
+        JsonObjectRequest request = new JsonObjectRequest("http://" + ipv4 + "/SleepORama/createDatapoint.php?username=" + username + "&sessionid=" + session_id + "&milliseconds=" + milliseconds + "&datapoint=" + datapoint, null, responseListener, errorListener);
+        Volley.newRequestQueue(context).add(request);
+        return;
+    }
+
+    public String parseAndReturnValue(JSONObject response){
+        JSONTokener theTokener = new JSONTokener(response.toString());
+        JSONObject result;
+        try{
+            result = (JSONObject) theTokener.nextValue();
+            if(result != null){
+                return result.getString("value");
+            }
+            else {
+                return "Value error";
+            }
         }
-        return returnString;
+        catch(JSONException je){
+            return "JSON error";
+        }
     }
 }

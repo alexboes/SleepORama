@@ -10,6 +10,11 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+
+import org.json.JSONObject;
+
 import java.sql.SQLException;
 
 import edu.usf.cse.android.db.ExternDBHelper;
@@ -19,18 +24,47 @@ public class LoginActivity extends AppCompatActivity {
 
     private SleepDBManager dbm;
     private ExternDBHelper edbh;
+    Response.Listener<JSONObject> checkLoginResponseListener;
+    Response.ErrorListener checkLoginErrorListener;
+    boolean loginButtonClicked;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        loginButtonClicked = false;
+
         edbh = new ExternDBHelper(this);
+
+        checkLoginResponseListener = new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject jsonObject) {
+                String response = edbh.parseAndReturnValue(jsonObject);
+                switch(response){
+                    case "TRUE" :
+                        login(true);
+                        break;
+                    case "FALSE" :
+                        loginButtonClicked = false;
+                        break;
+                    default:
+                        loginButtonClicked = false;
+                        break;
+                }
+            }
+        };
+
+        checkLoginErrorListener = new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError volleyError) {
+                loginButtonClicked = false;
+            }
+        };
 
         dbm = new SleepDBManager(this);
         try {
             dbm.open();
-            Log.d("Personal", "Check1");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -39,18 +73,34 @@ public class LoginActivity extends AppCompatActivity {
         login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                login(view);
+                if(!loginButtonClicked){
+                    Log.d("Personal", ((EditText) findViewById(R.id.username)).getText().toString());
+                    if(((EditText) findViewById(R.id.username)).getText().toString().equals("debug")){
+                        login(true);
+                    }
+                    else {
+                        String username = dbm.getUsername();
+                        if (((EditText) findViewById(R.id.username)).getText().toString().equals(username)) {
+                            String password = dbm.getPassword();
+                            if(((EditText) findViewById(R.id.password)).getText().toString().equals(password)){
+                                login(false);
+                            }
+                        } else {
+                            loginButtonClicked = true;
+                            edbh.checkLogin(((EditText) findViewById(R.id.username)).getText().toString(), ((EditText) findViewById(R.id.password)).getText().toString(), checkLoginResponseListener, checkLoginErrorListener);
+                        }
+                    }
+                }
             }
         });
     }
 
-    public void login(View view) {
+    public void login(boolean differentUser) {
         Intent intent = new Intent(this, MainActivity.class);
-        EditText editText = (EditText) findViewById(R.id.username);
-        String username = editText.getText().toString();
-        Log.d("Personal","Check2");
-        dbm.updatePreference(1, username);
-        Log.d("Personal","Check3");
+        if(differentUser) {
+            dbm.updatePreference(1, ((EditText) findViewById(R.id.username)).getText().toString());
+            dbm.updatePreference(2, ((EditText) findViewById(R.id.password)).getText().toString());
+        }
         startActivity(intent);
     }
 
