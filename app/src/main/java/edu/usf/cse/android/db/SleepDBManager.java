@@ -111,6 +111,12 @@ public class SleepDBManager {
         return temp.getString(1);
     }
 
+    public String getPassword() {
+        Cursor temp = db.query(true, "preferences", new String[] {"_id", "information"}, "_id=" + 2, null, null, null, null, null);
+        temp.moveToFirst();
+        return temp.getString(1);
+    }
+
     public String getDate(long session_id) {
         Cursor temp = db.query(true, "sessions", new String[] {"_id", "date"}, "_id=" + session_id, null, null, null, null, null);
         temp.moveToFirst();

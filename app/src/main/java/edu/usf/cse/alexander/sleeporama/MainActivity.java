@@ -13,17 +13,22 @@ package edu.usf.cse.alexander.sleeporama;
         import android.widget.LinearLayout;
         import android.widget.TextView;
 
+        import com.android.volley.Response;
+        import com.android.volley.VolleyError;
+
         import org.achartengine.ChartFactory;
         import org.achartengine.GraphicalView;
         import org.achartengine.model.XYMultipleSeriesDataset;
         import org.achartengine.model.XYSeries;
         import org.achartengine.renderer.XYMultipleSeriesRenderer;
         import org.achartengine.renderer.XYSeriesRenderer;
+        import org.json.JSONObject;
 
         import java.sql.SQLException;
         import java.util.Calendar;
         import java.util.TimeZone;
 
+        import edu.usf.cse.android.db.ExternDBHelper;
         import edu.usf.cse.android.db.SleepDBManager;
 
 public class MainActivity extends AppCompatActivity {
@@ -34,6 +39,9 @@ public class MainActivity extends AppCompatActivity {
     private XYSeries mCurrentSeries1;
     private XYSeriesRenderer mCurrentRenderer1;
     private long sessionID;
+    private ExternDBHelper edbh;
+    private Response.Listener<JSONObject> createSessionResponseListener;
+    private Response.ErrorListener createSessionErrorListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +49,33 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         Log.d("Personal", "Main Activity");
+
+        edbh = new ExternDBHelper(this);
+
+        createSessionResponseListener = new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject jsonObject) {
+                String response = edbh.parseAndReturnValue(jsonObject);
+                switch(response){
+                    case "TRUE" :
+                        Log.d("Personal", "Success");
+                        break;
+                    case "FAlSE" :
+                        Log.d("Personal", "Already Used");
+                        break;
+                    default :
+                        Log.d("Personal", "Error1");
+                        break;
+                }
+            }
+        };
+
+        createSessionErrorListener = new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError volleyError) {
+                Log.d("Personal", volleyError.toString());
+            }
+        };
 
         dbm = new SleepDBManager(this);
         try {
@@ -60,8 +95,10 @@ public class MainActivity extends AppCompatActivity {
         startSleep.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Calendar c = Calendar.getInstance(TimeZone.getTimeZone("America/New_York"));
-                sendSessionID(dbm.createSession(c.getTime().toGMTString()));
+                String d = Calendar.getInstance(TimeZone.getTimeZone("America/New_York")).getTime().toGMTString();
+                long temp = dbm.createSession(d);
+                edbh.createSession(dbm.getUsername(), temp, d, createSessionResponseListener, createSessionErrorListener);
+                sendSessionID(temp);
             }
         });
 

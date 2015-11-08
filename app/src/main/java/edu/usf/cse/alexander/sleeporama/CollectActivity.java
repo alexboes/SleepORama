@@ -13,6 +13,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+
+import org.json.JSONObject;
+
 import java.sql.SQLException;
 import java.util.Calendar;
 
@@ -27,6 +32,10 @@ public class CollectActivity extends AppCompatActivity implements SensorEventLis
     private double average = 0.0;
     private int minicount = 0;
     private long milliseconds;
+    private ExternDBHelper edbh;
+    private Response.Listener<JSONObject> createDatapointResponseListener;
+    private Response.ErrorListener createDatapointErrorListener;
+    private String username;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +46,32 @@ public class CollectActivity extends AppCompatActivity implements SensorEventLis
         Calendar c = Calendar.getInstance();
         milliseconds = c.getTimeInMillis();
 
+        edbh = new ExternDBHelper(this);
+
+        createDatapointResponseListener = new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject jsonObject) {
+                String response = edbh.parseAndReturnValue(jsonObject);
+                switch(response){
+                    case "TRUE" :
+                        Log.d("Personal", "ExternalDB Datapoint Transaction Executed");
+                        break;
+                    case "False" :
+                        Log.d("Personal", "Already Exists");
+                        break;
+                    default :
+                        Log.d("Personal", "Error");
+                }
+            }
+        };
+
+        createDatapointErrorListener = new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError volleyError) {
+                Log.d("Personal", volleyError.toString());
+            }
+        };
+
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         dbm = new SleepDBManager(this);
         try {
@@ -44,6 +79,8 @@ public class CollectActivity extends AppCompatActivity implements SensorEventLis
         } catch (SQLException e) {
             e.printStackTrace();
         }
+
+        username = dbm.getUsername();
 
         Button endSleep = (Button) this.findViewById(R.id.doneButton);
         endSleep.setOnClickListener(new View.OnClickListener() {
@@ -108,6 +145,7 @@ public class CollectActivity extends AppCompatActivity implements SensorEventLis
                     minicount = 0;
                     long temp = Calendar.getInstance().getTimeInMillis();
                     dbm.createDatapoint(sessionID, (temp - milliseconds), average);
+                    edbh.createDatapoint(username, sessionID, (temp - milliseconds), average, createDatapointResponseListener, createDatapointErrorListener);
                     average = 0.0;
                 }
             }

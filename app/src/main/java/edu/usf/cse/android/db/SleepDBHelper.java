@@ -41,6 +41,9 @@ public class SleepDBHelper extends SQLiteOpenHelper {
         values.put("information", "null");
         db.insert("preferences", null, values);
         values = new ContentValues();
+        values.put("information", "null");
+        db.insert("preferences", null, values);
+        values = new ContentValues();
         values.put("date", "null");
         db.insert("sessions", null, values);
     }
