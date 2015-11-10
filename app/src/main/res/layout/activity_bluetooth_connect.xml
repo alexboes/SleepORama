@@ -1,0 +1,79 @@
+<!--<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">-->
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
+
+    <!--<TextView android:text="@string/hello_world" android:layout_width="wrap_content"-->
+    <!--android:layout_height="wrap_content" />-->
+
+    <Button
+        android:id="@+id/action_scan"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Scan" />
+
+    <Button
+        android:id="@+id/action_stop"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/stop_label" />
+
+    <Button
+        android:id="@+id/action_conect"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Connect" />
+
+    <Button
+        android:id="@+id/read_button"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Read" />
+
+    <Button
+        android:id="@+id/services_characteristics"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Show GATT Profile" />
+
+
+    <TextView
+        android:id="@+id/HR"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:textSize="16pt"
+        android:textColor="#000000"
+        android:gravity="center"
+        android:text="Heart Rate" />
+
+    <TextView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/HRtext"
+        android:layout_height="wrap_content"
+        android:layout_width="fill_parent"
+        android:gravity="center"
+        android:padding="10dip"
+        android:textSize="32pt"
+        android:textColor="#B22222"
+        />
+
+
+    <!--<ListView
+        android:id="@+id/android:list"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"/>
+            <TextView
+                android:id="@+id/android:empty"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:text="EMPTY LIST"/>-->
+
+
+</LinearLayout>
+    <!--</ScrollView>-->

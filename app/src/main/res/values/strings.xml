@@ -14,4 +14,6 @@
     <string name="startSleeping">START SLEEPING</string>
     <string name="ble_not_supported">BLE not supported</string>
     <string name="unknown_device">Unknown Device</string>
+    <string name="title_activity_bluetooth_connect">BluetoothConnectActivity</string>
+    <string name="stop_label">Stop</string>
 </resources>
