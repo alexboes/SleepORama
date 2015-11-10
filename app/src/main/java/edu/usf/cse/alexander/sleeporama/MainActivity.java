@@ -126,9 +126,12 @@ public class MainActivity extends AppCompatActivity {
         next.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Log.d("Personal", "1st");
                 if(sessionID < getMaximumSessionID()) {
                     sessionID++;
+                    Log.d("Personal", "2nd");
                     ((TextView) findViewById(R.id.date)).setText("Date: " + dbm.getDate(sessionID));
+                    Log.d("Personal", "3rd");
                     setChart1toSessionValues();
                 }
             }
