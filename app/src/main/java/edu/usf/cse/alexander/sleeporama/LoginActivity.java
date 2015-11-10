@@ -13,6 +13,7 @@ import android.widget.EditText;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.sql.SQLException;
@@ -25,8 +26,12 @@ public class LoginActivity extends AppCompatActivity {
     private SleepDBManager dbm;
     private ExternDBHelper edbh;
     Response.Listener<JSONObject> checkLoginResponseListener;
+    Response.Listener<JSONObject> createUserResponseListener;
+    Response.Listener<JSONArray> retrieveUserSessionsResponseListener;
+    Response.Listener<JSONArray> retrieveUserDatapointsResponseListener;
     Response.ErrorListener checkLoginErrorListener;
     boolean loginButtonClicked;
+    boolean registerButtonClicked;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,9 +60,44 @@ public class LoginActivity extends AppCompatActivity {
             }
         };
 
+        createUserResponseListener = new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject jsonObject) {
+                String response = edbh.parseAndReturnValue(jsonObject);
+                Log.d("Personal", response);
+                switch(response){
+                    case "TRUE" :
+                        login(true);
+                        break;
+                    case "FALSE" :
+                        registerButtonClicked = false;
+                        break;
+                    default :
+                        registerButtonClicked = false;
+                }
+            }
+        };
+
+        retrieveUserSessionsResponseListener =  new Response.Listener<JSONArray>() {
+            @Override
+            public void onResponse(JSONArray jsonArray) {
+                Log.d("Personal", "Sessions Retrieved");
+                edbh.parseAndStoreSessions(jsonArray, dbm);
+            }
+        };
+
+        retrieveUserDatapointsResponseListener =  new Response.Listener<JSONArray>() {
+            @Override
+            public void onResponse(JSONArray jsonArray) {
+                Log.d("Personal", "Datapoints Retrieved");
+                edbh.parseAndStoreDatapoints(jsonArray, dbm);
+            }
+        };
+
         checkLoginErrorListener = new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError volleyError) {
+                Log.d("Personal", volleyError.toString());
                 loginButtonClicked = false;
             }
         };
@@ -74,7 +114,6 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if(!loginButtonClicked){
-                    Log.d("Personal", ((EditText) findViewById(R.id.username)).getText().toString());
                     if(((EditText) findViewById(R.id.username)).getText().toString().equals("debug")){
                         login(true);
                     }
@@ -93,6 +132,21 @@ public class LoginActivity extends AppCompatActivity {
                 }
             }
         });
+
+        Button register = (Button) this.findViewById(R.id.Register);
+        register.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(!registerButtonClicked){
+                    String username = dbm.getUsername();
+                    if(!(((EditText) findViewById(R.id.username)).getText().toString().equals(username))){
+                        Log.d("Personal", "Check1");
+                        registerButtonClicked = true;
+                        edbh.createUser(((EditText) findViewById(R.id.username)).getText().toString(), ((EditText) findViewById(R.id.password)).getText().toString(), createUserResponseListener, checkLoginErrorListener);
+                    }
+                }
+            }
+        });
     }
 
     public void login(boolean differentUser) {
@@ -100,6 +154,10 @@ public class LoginActivity extends AppCompatActivity {
         if(differentUser) {
             dbm.updatePreference(1, ((EditText) findViewById(R.id.username)).getText().toString());
             dbm.updatePreference(2, ((EditText) findViewById(R.id.password)).getText().toString());
+            dbm.deleteAllSessions();
+            dbm.deleteAllDatapoints();
+            edbh.retrieveUserSessions(((EditText) findViewById(R.id.username)).getText().toString(), retrieveUserSessionsResponseListener, checkLoginErrorListener);
+            edbh.retrieveUserDatapoints(((EditText) findViewById(R.id.username)).getText().toString(), retrieveUserDatapointsResponseListener, checkLoginErrorListener);
         }
         startActivity(intent);
     }

@@ -126,9 +126,12 @@ public class MainActivity extends AppCompatActivity {
         next.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Log.d("Personal", "1st");
                 if(sessionID < getMaximumSessionID()) {
                     sessionID++;
+                    Log.d("Personal", "2nd");
                     ((TextView) findViewById(R.id.date)).setText("Date: " + dbm.getDate(sessionID));
+                    Log.d("Personal", "3rd");
                     setChart1toSessionValues();
                 }
             }
@@ -172,10 +175,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void sendSessionID(long sid){
+        Log.d("Personal", "Check1");
         Intent intent = new Intent(this, CollectActivity.class);
         Bundle bundle = new Bundle();
         bundle.putLong("sessionID", sid);
         intent.putExtras(bundle);
+        Log.d("Personal", "Check2");
         startActivity(intent);
     }
 

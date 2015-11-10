@@ -16,7 +16,7 @@ public class SleepDBHelper extends SQLiteOpenHelper {
             "information text not null)";
     private static final String CREATE_SESSIONS_TABLE =
             "create table sessions(" +
-            "_id integer primary key autoincrement, " +
+            "_id integer primary key, " +
             "date text not null)";
     private static final String CREATE_DATAPOINTS_TABLE =
             "create table datapoints(" +

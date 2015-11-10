@@ -3,10 +3,12 @@ package edu.usf.cse.android.db;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.CursorIndexOutOfBoundsException;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
 import java.sql.SQLException;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Created by Alex on 10/20/2015.
@@ -93,6 +95,16 @@ public class SleepDBManager {
         return db.delete("datapoints", "_id=" + d_id, null) > 0;
     }
 
+    public boolean deleteAllSessions(){
+        boolean b = db.delete("sessions", null, null) > 0;
+        this.createSession("null");
+        return b;
+    }
+
+    public boolean deleteAllDatapoints(){
+        return db.delete("datapoints", null, null) > 0;
+    }
+
     public Cursor getAllSessionDatapoints(long session_id) throws SQLException{
         Cursor mCursor = db.query(true, "datapoints", new String[] {"_id", "session_id", "milliseconds", "datapoint"}, "session_id=" + session_id, null, null, null, null, null);
         if(mCursor != null){
@@ -118,8 +130,17 @@ public class SleepDBManager {
     }
 
     public String getDate(long session_id) {
+        Log.d("Personal", "4th");
         Cursor temp = db.query(true, "sessions", new String[] {"_id", "date"}, "_id=" + session_id, null, null, null, null, null);
+        Log.d("Personal", "5th");
         temp.moveToFirst();
-        return temp.getString(1);
+        Log.d("Personal", "6th");
+        try {
+            return temp.getString(1);
+        }
+        catch(CursorIndexOutOfBoundsException e){
+            Log.d("Personal", e.toString());
+            return "";
+        }
     }
 }

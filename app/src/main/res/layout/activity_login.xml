@@ -25,5 +25,11 @@
         android:text="@string/login"
         android:id="@+id/Login"
         android:layout_gravity="center_horizontal" />
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/register"
+        android:id="@+id/Register"
+        android:layout_gravity="center_horizontal" />
 </LinearLayout>
 
