@@ -176,7 +176,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void sendSessionID(long sid){
         Log.d("Personal", "Check1");
-        Intent intent = new Intent(this, CollectActivity.class);
+        Intent intent = new Intent(this, BluetoothConnectActivity.class);
         Bundle bundle = new Bundle();
         bundle.putLong("sessionID", sid);
         intent.putExtras(bundle);

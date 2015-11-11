@@ -46,7 +46,7 @@ public class BluetoothConnectActivity extends Activity implements View.OnClickLi
     private String[] gattList = new String[8];
     private TextView topView, hrView;
     private String selected;
-//        private BluetoothDevice device;
+    private BluetoothDevice device;
 
     private ArrayList<BluetoothDevice> bleDevices = new ArrayList<BluetoothDevice>();
 
@@ -118,21 +118,21 @@ public class BluetoothConnectActivity extends Activity implements View.OnClickLi
 
                 //if (!dName.isEmpty() && device.getName().equals("Lala-FUSE") == true) {
                 boolean status;
-                //device.getAddress().toString()
-                //                  if (selected != null) {
-//                        connectDevice(selected);
-//                        if (mBleWrapper.connect(selected)) {
-//                            Log.d("DEBUG", "CONNECTION SUCCESSFUL" + device.getAddress().toString());
-//                            Toast.makeText(getApplicationContext(), "Connection Succesful to " + device.getName(), Toast.LENGTH_LONG).show();
-//                             }
+                //device.getAddress().toString();
+                  //                if (selected != null) {
+                    //    connectDevice(selected);
+                      //  if (mBleWrapper.connect(selected)) {
+                        //    Log.d("DEBUG", "CONNECTION SUCCESSFUL" + device.getAddress().toString());
+                          //  Toast.makeText(getApplicationContext(), "Connection Succesful to " + device.getName(), Toast.LENGTH_LONG).show();
+                            // }
 
-                       /*if (status == false){
+                       //if (status == false){
 
-                            Log.d("DEBUG", "uiDeviceFound: Connection problem");
-                        }*/
+                       //     Log.d("DEBUG", "uiDeviceFound: Connection problem");
+                        //}
 
-                //}
-//                    }
+            //    }
+              //      }
             }//close uiDeviceFound method
 
             @Override
@@ -196,7 +196,7 @@ public class BluetoothConnectActivity extends Activity implements View.OnClickLi
                 {
                     String charName = BleNamesResolver.resolveCharacteristicName(c.getUuid().toString());
                     gattList [count] += "Characteristic: " + charName + "\n";
-                    // count++;
+                //    count++;
                     Log.d("CHARACTERISTIC", charName);
                 }
             }
@@ -209,25 +209,27 @@ public class BluetoothConnectActivity extends Activity implements View.OnClickLi
                 BluetoothGattCharacteristic c;
                 Log.d(LOGTAG, "uiSuccessfulWrite");
                 super.uiSuccessfulWrite(gatt, device, service, ch, description);
+                Log.d(LOGTAG, "mState is now " + mState);
 
 
                 switch (mState) {
                     case HR_ENABLE:
-                        //  Log.d(LOGTAG, "uiSuccessfulWrite: Reading Heart Rate");
+                        Log.d(LOGTAG, "uiSuccessfulWrite: Reading Heart Rate");
                         Log.d(LOGTAG, "uiSuccessfulWrite: Successfully enabled Heart Rate " );
-                        // c = gatt.getService(BleDefinedUUIDs.Service.HEART_RATE).getCharacteristic(BleDefinedUUIDs.Characteristic.HEART_RATE_MEASUREMENT);
-                        // c = gatt.getService(BleDefinedUUIDs.Service.BATTERY).getCharacteristic(BleDefinedUUIDs.Characteristic.BATTERY_LEVEL);
-                        //mBleWrapper.requestCharacteristicValue(c);
-                        //mState = mSensorState.HR_READ;
+                        c = gatt.getService(BleDefinedUUIDs.Service.HEART_RATE).getCharacteristic(BleDefinedUUIDs.Characteristic.HEART_RATE_MEASUREMENT);
+                        c = gatt.getService(BleDefinedUUIDs.Service.BATTERY).getCharacteristic(BleDefinedUUIDs.Characteristic.BATTERY_LEVEL);
+                        mBleWrapper.requestCharacteristicValue(c);
+                        mState = mSensorState.HR_READ;
                         break;
 
                     case HR_READ:
-//                           Log.d(LOGTAG, "uiSuccessfulWrite: state = HR_READ");
-//                           c = gatt.getService(BleDefinedUUIDs.Service.BATTERY).getCharacteristic(BleDefinedUUIDs.Characteristic.BATTERY_LEVEL);
-//                           mBleWrapper.requestCharacteristicValue(c);
-//                           break;
+                           Log.d(LOGTAG, "uiSuccessfulWrite: state = HR_READ");
+                           c = gatt.getService(BleDefinedUUIDs.Service.BATTERY).getCharacteristic(BleDefinedUUIDs.Characteristic.BATTERY_LEVEL);
+                           mBleWrapper.requestCharacteristicValue(c);
+                           break;
 
                     default:
+                        Log.d(LOGTAG, "mState default");
                         break;
                 }
             }
@@ -244,7 +246,6 @@ public class BluetoothConnectActivity extends Activity implements View.OnClickLi
                                                     BluetoothGattCharacteristic ch, String strValue, int intValue, byte[] rawValue, String timestamp) {
 
                 super.uiNewValueForCharacteristic(gatt, device, service, ch, strValue, intValue, rawValue, timestamp);
-
                 switch (mState){
 
                     case HR_READ:
@@ -257,7 +258,8 @@ public class BluetoothConnectActivity extends Activity implements View.OnClickLi
                 for (byte b : rawValue) {
                     Log.d(LOGTAG, "Val: " + b);
 
-                    //System.out.println("THIS IS MY HR" + rawValue[1]);
+                   // Log.d("test", "THIS IS MY HR" + rawValue[1]);
+
                 }
                 updateHR(rawValue[1]);
                 //RunOnUI hrView.setText(rawValue[1]);
@@ -416,7 +418,7 @@ public class BluetoothConnectActivity extends Activity implements View.OnClickLi
         mBleWrapper.requestCharacteristicValue(HR);
         mState=mSensorState.HR_READ;
         //Maybe?
-        updateHR(HR.getValue()[1]);
+        Log.d(LOGTAG, "END");
 
     }
 
