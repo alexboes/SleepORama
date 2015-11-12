@@ -24,6 +24,12 @@ public class SleepDBHelper extends SQLiteOpenHelper {
             "session_id integer not null, " +
             "milliseconds integer not null, " +
             "datapoint real not null)";
+    private static final String CREATE_HEARTRATES_TABLE =
+            "create table heartrates(" +
+            "_id integer primary key autoincrement, " +
+            "session_id integer not null, " +
+            "milliseconds integer not null, " +
+            "heartrate integer not null)";
 
     private static final String DB_NAME = "SleepORama";
     private static final int DB_VERSION = 1;
@@ -37,7 +43,11 @@ public class SleepDBHelper extends SQLiteOpenHelper {
         db.execSQL(CREATE_PREFERENCES_TABLE);
         db.execSQL(CREATE_SESSIONS_TABLE);
         db.execSQL(CREATE_DATAPOINTS_TABLE);
+        db.execSQL(CREATE_HEARTRATES_TABLE);
         ContentValues values = new ContentValues();
+        values.put("information", "null");
+        db.insert("preferences", null, values);
+        values = new ContentValues();
         values.put("information", "null");
         db.insert("preferences", null, values);
         values = new ContentValues();
@@ -53,6 +63,7 @@ public class SleepDBHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS preferences");
         db.execSQL("DROP TABLE IF EXISTS sessions");
         db.execSQL("DROP TABLE IF EXISTS datapoints");
+        db.execSQL("DROP TABLE IF EXISTS heartrates");
         onCreate(db);
     }
 }

@@ -16,7 +16,7 @@
         android:id="@+id/action_scan"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Scan" />
+        android:text="SCAN" />
 
     <Button
         android:id="@+id/action_stop"
@@ -28,19 +28,13 @@
         android:id="@+id/action_conect"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Connect" />
+        android:text="CONNECT" />
 
     <Button
         android:id="@+id/read_button"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Read" />
-
-    <Button
-        android:id="@+id/services_characteristics"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="Show GATT Profile" />
+        android:text="START SLEEPING" />
 
 
     <TextView

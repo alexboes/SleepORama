@@ -1,6 +1,7 @@
 // hello its jake
 package edu.usf.cse.alexander.sleeporama;
 
+        import android.content.Context;
         import android.content.Intent;
         import android.database.Cursor;
         import android.support.v7.app.AppCompatActivity;
@@ -38,6 +39,11 @@ public class MainActivity extends AppCompatActivity {
     private XYMultipleSeriesRenderer mRenderer1 = new XYMultipleSeriesRenderer();
     private XYSeries mCurrentSeries1;
     private XYSeriesRenderer mCurrentRenderer1;
+    private GraphicalView mChart2;
+    private XYMultipleSeriesDataset mDataset2 = new XYMultipleSeriesDataset();
+    private XYMultipleSeriesRenderer mRenderer2 = new XYMultipleSeriesRenderer();
+    private XYSeries mCurrentSeries2;
+    private XYSeriesRenderer mCurrentRenderer2;
     private long sessionID;
     private ExternDBHelper edbh;
     private Response.Listener<JSONObject> createSessionResponseListener;
@@ -50,20 +56,18 @@ public class MainActivity extends AppCompatActivity {
 
         Log.d("Personal", "Main Activity");
 
-        edbh = new ExternDBHelper(this);
-
         createSessionResponseListener = new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject jsonObject) {
                 String response = edbh.parseAndReturnValue(jsonObject);
-                switch(response){
-                    case "TRUE" :
+                switch(response) {
+                    case "TRUE":
                         Log.d("Personal", "Success");
                         break;
-                    case "FAlSE" :
+                    case "FAlSE":
                         Log.d("Personal", "Already Used");
                         break;
-                    default :
+                    default:
                         Log.d("Personal", "Error1");
                         break;
                 }
@@ -83,6 +87,8 @@ public class MainActivity extends AppCompatActivity {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+
+        edbh = new ExternDBHelper(this, dbm);
         sessionID = getMaximumSessionID();
 
         String username = dbm.getUsername();
@@ -142,13 +148,17 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume(){
         super.onResume();
         LinearLayout charts = (LinearLayout) this.findViewById(R.id.charts);
-        if(mChart1 == null){
+        if(mChart1 == null || mChart2 == null){
             initChart();
             mChart1 = ChartFactory.getCubeLineChartView(this, mDataset1, mRenderer1, 0);
             setChart1toSessionValues();
             charts.addView(mChart1);
+            mChart2 = ChartFactory.getCubeLineChartView(this, mDataset1, mRenderer1, 0);
+            setChart2toSessionValues();
+            charts.addView(mChart2);
         } else {
             mChart1.repaint();
+            mChart2.repaint();
         }
     }
 
@@ -196,6 +206,12 @@ public class MainActivity extends AppCompatActivity {
         mRenderer1.addSeriesRenderer(mCurrentRenderer1);
         mRenderer1.setPanEnabled(false, false);
         mRenderer1.setZoomEnabled(false, false);
+        mCurrentSeries2 = new XYSeries("Heartrate Data");
+        mDataset2.addSeries(mCurrentSeries2);
+        mCurrentRenderer2 = new XYSeriesRenderer();
+        mRenderer2.addSeriesRenderer(mCurrentRenderer2);
+        mRenderer2.setPanEnabled(false, false);
+        mRenderer2.setZoomEnabled(false, false);
     }
 
     private void setChart1toSessionValues(){
@@ -214,6 +230,24 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         mChart1.repaint();
+    }
+
+    private void setChart2toSessionValues(){
+        mCurrentSeries2.clear();
+        Cursor mCursor = null;
+        try {
+            mCursor = dbm.getAllSessionHeartrates(sessionID);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        Log.d("Personal", "" + sessionID + " Count: " + mCursor.getCount());
+        if(mCursor != null){
+            while(!(mCursor.isAfterLast())) {
+                mCurrentSeries1.add(mCursor.getLong(2), mCursor.getLong(3));
+                mCursor.moveToNext();
+            }
+        }
+        mChart2.repaint();
     }
 
     private long getMaximumSessionID (){

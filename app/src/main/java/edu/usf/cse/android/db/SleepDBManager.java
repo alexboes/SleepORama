@@ -51,6 +51,14 @@ public class SleepDBManager {
         return values;
     }
 
+    private ContentValues createHeartrateValues(long session_id, long milliseconds, long heartrate){
+        ContentValues values = new ContentValues();
+        values.put("session_id", session_id);
+        values.put("milliseconds", milliseconds);
+        values.put("heartrate", heartrate);
+        return values;
+    }
+
     public long createPreference(String information){
         ContentValues initialValues = createPreferencesValues(information);
         return db.insert("preferences", null, initialValues);
@@ -64,7 +72,14 @@ public class SleepDBManager {
     public void createDatapoint(long session_id, long milliseconds, double datapoint){
         ContentValues initialValues = createDatapointValues(session_id, milliseconds, datapoint);
         db.insert("datapoints", null, initialValues);
-        Log.d("Personal", "SQL Executed");
+        Log.d("Personal", "Datapoint SQL Executed");
+        return;
+    }
+
+    public void createHeartrate(long session_id, long milliseconds, long heartrate){
+        ContentValues initialValues = createHeartrateValues(session_id, milliseconds, heartrate);
+        db.insert("heartrates", null, initialValues);
+        Log.d("Personal", "Heartrate SQL Executed");
         return;
     }
 
@@ -105,8 +120,20 @@ public class SleepDBManager {
         return db.delete("datapoints", null, null) > 0;
     }
 
+    public boolean deleteAllHeartrates(){
+        return db.delete("heartrates", null, null) > 0;
+    }
+
     public Cursor getAllSessionDatapoints(long session_id) throws SQLException{
         Cursor mCursor = db.query(true, "datapoints", new String[] {"_id", "session_id", "milliseconds", "datapoint"}, "session_id=" + session_id, null, null, null, null, null);
+        if(mCursor != null){
+            mCursor.moveToFirst();
+        }
+        return mCursor;
+    }
+
+    public Cursor getAllSessionHeartrates(long session_id) throws SQLException{
+        Cursor mCursor = db.query(true, "heartrates", new String[] {"_id", "session_id", "milliseconds", "heartrate"}, "session_id=" + session_id, null, null, null, null, null);
         if(mCursor != null){
             mCursor.moveToFirst();
         }
@@ -125,6 +152,12 @@ public class SleepDBManager {
 
     public String getPassword() {
         Cursor temp = db.query(true, "preferences", new String[] {"_id", "information"}, "_id=" + 2, null, null, null, null, null);
+        temp.moveToFirst();
+        return temp.getString(1);
+    }
+
+    public String getIP() {
+        Cursor temp = db.query(true, "preferences", new String[] {"_id", "information"}, "_id=" + 3, null, null, null, null, null);
         temp.moveToFirst();
         return temp.getString(1);
     }

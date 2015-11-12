@@ -7,13 +7,20 @@ import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.content.Intent;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 
@@ -33,11 +40,20 @@ import android.widget.Toast;
 import android.view.View;
 import android.view.View.OnClickListener;
 
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.google.android.gms.appdatasearch.GetRecentContextCall;
+
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.usf.cse.android.db.ExternDBHelper;
+import edu.usf.cse.android.db.SleepDBManager;
 
-public class BluetoothConnectActivity extends Activity implements View.OnClickListener {
+
+public class BluetoothConnectActivity extends Activity implements View.OnClickListener, SensorEventListener {
 
     private int count = 0;
     public BleWrapper mBleWrapper = null;
@@ -48,7 +64,45 @@ public class BluetoothConnectActivity extends Activity implements View.OnClickLi
     private String selected;
     private BluetoothDevice device;
 
+    private SensorManager sensorManager;
+    private long sessionID;
+    private SleepDBManager dbm;
+    private double[] data = new double[10000];
+    private double average = 0.0;
+    private int minicount = 0;
+    private long milliseconds;
+    private ExternDBHelper edbh;
+    private Response.Listener<JSONObject> createDatapointResponseListener;
+    private Response.ErrorListener createDatapointErrorListener;
+    private String username;
+
+    private boolean reading;
+
     private ArrayList<BluetoothDevice> bleDevices = new ArrayList<BluetoothDevice>();
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        synchronized(this){
+            float x = event.values[0];
+            float y = event.values[1];
+            float z = event.values[2];
+            double r = Math.sqrt(x*x + y*y + z*z);
+            average += r/100;
+            minicount++;
+            if(minicount == 100){
+                minicount = 0;
+                long temp = Calendar.getInstance().getTimeInMillis();
+                dbm.createDatapoint(sessionID, (temp - milliseconds), average);
+                edbh.createDatapoint(username, sessionID, (temp - milliseconds), average, createDatapointResponseListener, createDatapointErrorListener);
+                average = 0.0;
+            }
+        }
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
+    }
 
     private enum mSensorState {IDLE, HR_ENABLE, HR_READ
     }
@@ -65,6 +119,46 @@ public class BluetoothConnectActivity extends Activity implements View.OnClickLi
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bluetooth_connect);
+
+        reading = false;
+        Bundle bundle = getIntent().getExtras();
+        sessionID = bundle.getLong("sessionID");
+
+        createDatapointResponseListener = new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject jsonObject) {
+                String response = edbh.parseAndReturnValue(jsonObject);
+                switch(response){
+                    case "TRUE" :
+                        Log.d("Personal", "ExternalDB Datapoint Transaction Executed");
+                        break;
+                    case "False" :
+                        Log.d("Personal", "Already Exists");
+                        break;
+                    default :
+                        Log.d("Personal", "Error");
+                }
+            }
+        };
+
+        createDatapointErrorListener = new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError volleyError) {
+                Log.d("Personal", volleyError.toString());
+            }
+        };
+
+        sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        dbm = new SleepDBManager(this);
+        try {
+            dbm.open();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        edbh = new ExternDBHelper(this, dbm);
+
+        username = dbm.getUsername();
 
         selected = getIntent().getStringExtra("MacAddress");
         System.out.println("SHOWING SELECTED VALUE" + selected);
@@ -85,9 +179,6 @@ public class BluetoothConnectActivity extends Activity implements View.OnClickLi
 
         View readButton = findViewById(R.id.read_button);
         readButton.setOnClickListener(this);
-
-        View showSC = findViewById(R.id.services_characteristics);
-        showSC.setOnClickListener(this);
 
         mBleWrapper = new BleWrapper(this, new BleWrapperUiCallbacks.Null() {
 
@@ -249,14 +340,14 @@ public class BluetoothConnectActivity extends Activity implements View.OnClickLi
                 switch (mState){
 
                     case HR_READ:
-                        Log.d(LOGTAG, "uiNewValueForCharasteristic");
+                        Log.d("Personal", "uiNewValueForCharasteristic");
                         break;
                 }
 
                 Log.d(LOGTAG, "uiNewValueForCharasteristic");
 
                 for (byte b : rawValue) {
-                    Log.d(LOGTAG, "Val: " + b);
+                    Log.d("Personal", "Val: " + b);
 
                    // Log.d("test", "THIS IS MY HR" + rawValue[1]);
 
@@ -298,7 +389,8 @@ public class BluetoothConnectActivity extends Activity implements View.OnClickLi
     public void updateHR(byte b) {
 
         final byte updateHR = b;
-
+        Long temp = Calendar.getInstance().getTimeInMillis();
+        dbm.createHeartrate(sessionID, temp - milliseconds, (long) updateHR);
 
         runOnUiThread(new Runnable() {
             @Override
@@ -350,6 +442,12 @@ public class BluetoothConnectActivity extends Activity implements View.OnClickLi
     }
 
     @Override
+    protected void onStop() {
+        super.onStop();
+        sensorManager.unregisterListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER));
+    }
+
+    @Override
         /*
         Once the button is clicked call on the following method.
          */
@@ -370,17 +468,18 @@ public class BluetoothConnectActivity extends Activity implements View.OnClickLi
                 break;
 
             case R.id.read_button:
-                topView.setText("Heart Rate");
-                Toast.makeText(getApplicationContext(), "Reading sensor data...", Toast.LENGTH_LONG).show();
-                testButton();
+                if(!reading) {
+                    reading = true;
+                    sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_UI);
+                    topView.setText("Heart Rate");
+                    ((Button) findViewById(R.id.read_button)).setText("STOP SLEEPING");
+                    Toast.makeText(getApplicationContext(), "Reading sensor data...", Toast.LENGTH_LONG).show();
+                    testButton();
+                }
+                else {
+                    sendNothing();
+                }
 
-                break;
-
-            case R.id.services_characteristics:
-                Intent newIntent = new Intent(this, ServicesCharacteristicsActivity.class);
-                newIntent.putExtra("services", gattList);
-                //intent.putParcelableArrayListExtra("device.list", bleDevices);
-                startActivity(newIntent);
                 break;
 
             case R.id.action_conect:
@@ -402,14 +501,14 @@ public class BluetoothConnectActivity extends Activity implements View.OnClickLi
     private void testButton(){
 
         BluetoothGatt gatt;
-        BluetoothGattCharacteristic HR, BT;
+        BluetoothGattCharacteristic HR;
 
 
         if(!mBleWrapper.isConnected()){
             return;
         }
 
-        Log.d(LOGTAG, "testButton: Reading Heart Rate");
+        Log.d("Personal", "testButton: Reading Heart Rate");
         gatt = mBleWrapper.getGatt();
 
         //Enabling notifications for Heart Rate service
@@ -418,8 +517,15 @@ public class BluetoothConnectActivity extends Activity implements View.OnClickLi
         mBleWrapper.requestCharacteristicValue(HR);
         mState=mSensorState.HR_READ;
         //Maybe?
-        Log.d(LOGTAG, "END");
+        Log.d("Personal", "END");
+        milliseconds = Calendar.getInstance().getTimeInMillis();
+        sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_UI);
 
+    }
+
+    private void sendNothing() {
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
     }
 
 }

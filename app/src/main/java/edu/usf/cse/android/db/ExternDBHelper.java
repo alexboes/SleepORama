@@ -19,46 +19,47 @@ import org.json.JSONTokener;
  */
 public class ExternDBHelper {
     private Context context;
-    private final static String ipv4 = "192.236.127.225";
-    private SleepDBManager dbm;
+    private String ip;
 
-    public ExternDBHelper(Context c){
+    public ExternDBHelper(Context c, SleepDBManager dbm){
         context = c;
+        ip = dbm.getIP();
     }
 
     public void checkLogin(String username, String password, Response.Listener<JSONObject> responseListener, Response.ErrorListener errorListener){
-        JsonObjectRequest request = new JsonObjectRequest("http://" + ipv4 + "/SleepORama/checkLogin.php?username=" + username + "&password=" + password, null, responseListener, errorListener);
+        Log.d("Personal", "http://" + ip + "/SleepORama/checkLogin.php?username=" + username + "&password=" + password);
+        JsonObjectRequest request = new JsonObjectRequest("http://" + ip + "/SleepORama/checkLogin.php?username=" + username + "&password=" + password, null, responseListener, errorListener);
         Volley.newRequestQueue(context).add(request);
         return;
     }
 
     public void createUser(String username, String password, Response.Listener<JSONObject> responseListener, Response.ErrorListener errorListener){
-        JsonObjectRequest request = new JsonObjectRequest("http://" + ipv4 + "/SleepORama/createUser.php?username=" + username + "&password=" + password, null, responseListener, errorListener);
+        JsonObjectRequest request = new JsonObjectRequest("http://" + ip + "/SleepORama/createUser.php?username=" + username + "&password=" + password, null, responseListener, errorListener);
         Volley.newRequestQueue(context).add(request);
         return;
     }
 
     public void createSession(String username, long session_id, String date, Response.Listener<JSONObject> responseListener, Response.ErrorListener errorListener){
         String d = date.replace(' ', '_');
-        JsonObjectRequest request = new JsonObjectRequest("http://" + ipv4 + "/SleepORama/createSession.php?username=" + username + "&sessionid=" + session_id + "&date=" + d, null, responseListener, errorListener);
+        JsonObjectRequest request = new JsonObjectRequest("http://" + ip + "/SleepORama/createSession.php?username=" + username + "&sessionid=" + session_id + "&date=" + d, null, responseListener, errorListener);
         Volley.newRequestQueue(context).add(request);
         return;
     }
 
     public void createDatapoint(String username, long session_id, long milliseconds, double datapoint, Response.Listener<JSONObject> responseListener, Response.ErrorListener errorListener){
-        JsonObjectRequest request = new JsonObjectRequest("http://" + ipv4 + "/SleepORama/createDatapoint.php?username=" + username + "&sessionid=" + session_id + "&milliseconds=" + milliseconds + "&datapoint=" + datapoint, null, responseListener, errorListener);
+        JsonObjectRequest request = new JsonObjectRequest("http://" + ip + "/SleepORama/createDatapoint.php?username=" + username + "&sessionid=" + session_id + "&milliseconds=" + milliseconds + "&datapoint=" + datapoint, null, responseListener, errorListener);
         Volley.newRequestQueue(context).add(request);
         return;
     }
 
     public void retrieveUserSessions(String username, Response.Listener<JSONArray> responseListener, Response.ErrorListener errorListener){
-        JsonArrayRequest request = new JsonArrayRequest("http://" + ipv4 + "/SleepORama/retrieveUserSessions.php?username=" + username, responseListener, errorListener);
+        JsonArrayRequest request = new JsonArrayRequest("http://" + ip + "/SleepORama/retrieveUserSessions.php?username=" + username, responseListener, errorListener);
         Volley.newRequestQueue(context).add(request);
         return;
     }
 
     public void retrieveUserDatapoints(String username, Response.Listener<JSONArray> responseListener, Response.ErrorListener errorListener){
-        JsonArrayRequest request = new JsonArrayRequest("http://" + ipv4 + "/SleepORama/retrieveUserDatapoints.php?username=" + username, responseListener, errorListener);
+        JsonArrayRequest request = new JsonArrayRequest("http://" + ip + "/SleepORama/retrieveUserDatapoints.php?username=" + username, responseListener, errorListener);
         Volley.newRequestQueue(context).add(request);
         return;
     }
@@ -112,5 +113,9 @@ public class ExternDBHelper {
         catch(JSONException je) {
             Log.d("Personal", je.toString());
         }
+    }
+
+    public void updateIP(SleepDBManager dbm){
+        ip = dbm.getIP();
     }
 }

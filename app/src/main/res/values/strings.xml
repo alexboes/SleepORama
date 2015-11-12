@@ -15,6 +15,7 @@
     <string name="ble_not_supported">BLE not supported</string>
     <string name="unknown_device">Unknown Device</string>
     <string name="title_activity_bluetooth_connect">BluetoothConnectActivity</string>
-    <string name="stop_label">Stop</string>
+    <string name="stop_label">STOP</string>
     <string name="register">REGISTER</string>
+    <string name="submit">SUBMIT</string>
 </resources>
